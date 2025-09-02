@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numerical Methods - CFD Handbook</title>
+    <meta name="description" content="Comprehensive guide to CFD numerical methods: solver schemes, discretization, and gradients.">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="version" content="2.0">
+    <meta name="last-modified" content="2025-12-19">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background-color: #f7fafc;
+            min-height: 100vh;
+            opacity: 0;
+            animation: fadeInPage 1.2s ease-out forwards;
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 2rem;
+            max-width: 1400px;
+        }
+
+        /* Premium Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .logo:hover::after {
+            width: 100%;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            color: #4a5568;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-tab:hover::before,
+        .nav-tab.active::before {
+            opacity: 1;
+        }
+
+        .nav-tab:hover,
+        .nav-tab.active {
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        /* Premium Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6rem 0 4rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" stop-color="white" stop-opacity=".1"/><stop offset="100%" stop-color="white" stop-opacity="0"/></radialGradient></defs><circle cx="10" cy="10" r="10" fill="url(%23a)"/><circle cx="30" cy="5" r="8" fill="url(%23a)"/><circle cx="60" cy="15" r="6" fill="url(%23a)"/><circle cx="80" cy="8" r="12" fill="url(%23a)"/></svg>') repeat;
+            opacity: 0.1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto 3rem auto;
+            font-weight: 300;
+        }
+
+        /* Featured Categories Section */
+        .featured-section {
+            background: linear-gradient(135deg, #ffffff 0%, #fdfdff 100%);
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: 0 4px 16px rgba(118, 75, 162, 0.08), 0 2px 4px rgba(0, 0, 0, 0.03);
+            margin-bottom: 4rem;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            position: relative;
+            overflow: hidden;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 4rem;
+        }
+
+        .featured-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .featured-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .featured-subtitle {
+            font-size: 1rem;
+            color: #718096;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .method-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .category-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(102, 126, 234, 0.08);
+            border-radius: 12px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.08);
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transform: translateX(-100%);
+            transition: transform 0.4s ease;
+        }
+
+        .category-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 16px 32px rgba(102, 126, 234, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+
+        .category-description {
+            font-size: 0.95rem;
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-methods {
+            font-size: 0.85rem;
+            color: #718096;
+            font-style: italic;
+        }
+
+        /* Methods Grid */
+        .methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .method-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(102, 126, 234, 0.08);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.06);
+        }
+
+        .method-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .method-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .method-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.12), 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .method-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .method-type {
+            font-size: 0.8rem;
+            color: #667eea;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        .method-description {
+            font-size: 0.9rem;
+            color: #4a5568;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .method-categories {
+                grid-template-columns: 1fr;
+            }
+
+            .methods-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .featured-section {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="home.html" class="logo">CFD Handbook</a>
+                
+                <!-- Navigation Tabs -->
+                <div class="nav-tabs">
+                    <a href="home.html" class="nav-tab">Home</a>
+                    <a href="time-dependency.html" class="nav-tab">Time Dependency</a>
+                    <a href="turbulence-models.html" class="nav-tab">Turbulence Models</a>
+                    <a href="methods.html" class="nav-tab active">Methods</a>
+                    <a href="product-guide.html" class="nav-tab">Product Guide</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Numerical Methods</h1>
+            <p class="hero-subtitle">Comprehensive guide to CFD numerical methods: solver schemes, discretization techniques, and computational approaches</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Featured Categories Section -->
+        <div class="featured-section">
+            <h2 class="featured-title">Method Categories</h2>
+            <p class="featured-subtitle">Core numerical approaches in computational fluid dynamics</p>
+            
+            <div class="method-categories">
+                <div class="category-card">
+                    <div class="category-name">Pressure-Velocity Coupling</div>
+                    <div class="category-description">Algorithms for solving the pressure-velocity coupling in incompressible flows</div>
+                    <div class="category-methods">SIMPLE, SIMPLEC, PISO, PIMPLE, Coupled</div>
+                </div>
+                
+                <div class="category-card">
+                    <div class="category-name">Spatial Discretization</div>
+                    <div class="category-description">Schemes for approximating spatial derivatives and gradients</div>
+                    <div class="category-methods">Central Difference, Upwind, QUICK, MUSCL, TVD, WENO</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Methods Grid -->
+        <div class="featured-section">
+            <h2 class="featured-title">All Numerical Methods</h2>
+            <p class="featured-subtitle">Click any method to access detailed technical guides</p>
+            
+            <div class="methods-grid">
+                <!-- Pressure-Velocity Coupling Methods -->
+                <div class="method-card" onclick="navigateToMethod('methods/simple.html')">
+                    <div class="method-name">SIMPLE</div>
+                    <div class="method-type">Pressure-Velocity Coupling</div>
+                    <div class="method-description">Semi-Implicit Method for Pressure-Linked Equations. The foundational algorithm for steady-state incompressible flow.</div>
+                </div>
+
+                <div class="method-card" onclick="navigateToMethod('methods/simplec.html')">
+                    <div class="method-name">SIMPLEC</div>
+                    <div class="method-type">Pressure-Velocity Coupling</div>
+                    <div class="method-description">SIMPLE-Consistent algorithm with improved velocity correction for enhanced convergence.</div>
+                </div>
+
+                <div class="method-card" onclick="navigateToMethod('methods/piso.html')">
+                    <div class="method-name">PISO</div>
+                    <div class="method-type">Pressure-Velocity Coupling</div>
+                    <div class="method-description">Pressure-Implicit with Splitting of Operators. Excellent for transient flows and unsteady simulations.</div>
+                </div>
+
+                <div class="method-card" onclick="navigateToMethod('methods/pimple.html')">
+                    <div class="method-name">PIMPLE</div>
+                    <div class="method-type">Pressure-Velocity Coupling</div>
+                    <div class="method-description">Hybrid PISO-SIMPLE algorithm combining benefits of both approaches for robust transient solutions.</div>
+                </div>
+
+                <div class="method-card" onclick="navigateToMethod('methods/coupled.html')">
+                    <div class="method-name">Coupled</div>
+                    <div class="method-type">Pressure-Velocity Coupling</div>
+                    <div class="method-description">Simultaneous solution of momentum and continuity equations for optimal convergence.</div>
+                </div>
+
+                <!-- Spatial Discretization Methods -->
+                <div class="method-card" onclick="navigateToMethod('methods/central-difference.html')">
+                    <div class="method-name">Central Difference</div>
+                    <div class="method-type">Spatial Discretization</div>
+                    <div class="method-description">Second-order accurate scheme with excellent accuracy for smooth flows but potential stability issues.</div>
+                </div>
+
+                <div class="method-card" onclick="navigateToMethod('methods/first-order-upwind.html')">
+                    <div class="method-name">First-Order Upwind</div>
+                    <div class="method-type">Spatial Discretization</div>
+                    <div class="method-description">Stable but diffusive scheme suitable for initial convergence and robust solutions.</div>
+                </div>
+
+                <div class="method-card" onclick="navigateToMethod('methods/second-order-upwind.html')">
+                    <div class="method-name">Second-Order Upwind</div>
+                    <div class="method-type">Spatial Discretization</div>
+                    <div class="method-description">Improved accuracy over first-order with maintained stability for most engineering applications.</div>
+                </div>
+
+                <div class="method-card" onclick="navigateToMethod('methods/quick.html')">
+                    <div class="method-name">QUICK</div>
+                    <div class="method-type">Spatial Discretization</div>
+                    <div class="method-description">Quadratic Upstream Interpolation for Convective Kinematics. Third-order accuracy with good stability.</div>
+                </div>
+
+                <div class="method-card" onclick="navigateToMethod('methods/muscl.html')">
+                    <div class="method-name">MUSCL</div>
+                    <div class="method-type">Spatial Discretization</div>
+                    <div class="method-description">Monotonic Upstream-centered Scheme for Conservation Laws. High-resolution with shock-capturing.</div>
+                </div>
+
+                <div class="method-card" onclick="navigateToMethod('methods/tvd.html')">
+                    <div class="method-name">TVD</div>
+                    <div class="method-type">Spatial Discretization</div>
+                    <div class="method-description">Total Variation Diminishing schemes ensuring monotonicity and avoiding spurious oscillations.</div>
+                </div>
+
+                <div class="method-card" onclick="navigateToMethod('methods/weno.html')">
+                    <div class="method-name">WENO</div>
+                    <div class="method-type">Spatial Discretization</div>
+                    <div class="method-description">Weighted Essentially Non-Oscillatory scheme providing high-order accuracy with shock-capturing.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 CFD Handbook. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Scroll position memory system
+        function saveScrollPosition() {
+            const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+            sessionStorage.setItem('methodsPageScrollPosition', scrollPosition);
+        }
+
+        function restoreScrollPosition() {
+            const savedPosition = sessionStorage.getItem('methodsPageScrollPosition');
+            if (savedPosition) {
+                // Restore scroll position after page load
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: parseInt(savedPosition),
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            }
+        }
+
+        // Navigation function for methods with scroll memory
+        function navigateToMethod(methodFile) {
+            // Save current scroll position
+            saveScrollPosition();
+            
+            // Save which method was visited
+            sessionStorage.setItem('lastVisitedMethod', methodFile);
+            
+            // Fade out current page
+            document.body.style.opacity = '0';
+            document.body.style.transform = 'translateY(20px)';
+            
+            // Navigate after animation
+            setTimeout(() => {
+                window.location.href = methodFile;
+            }, 300);
+        }
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Add smooth transitions to navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                if (!this.classList.contains('active')) {
+                    e.preventDefault();
+                    
+                    // Fade out current page
+                    document.body.style.opacity = '0';
+                    document.body.style.transform = 'translateY(20px)';
+                    
+                    // Navigate after animation
+                    setTimeout(() => {
+                        window.location.href = this.href;
+                    }, 300);
+                }
+            });
+        });
+
+        // Enhanced card interactions with scroll memory
+        document.querySelectorAll('.method-card, .category-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+
+            // Add click handler to save scroll position
+            card.addEventListener('click', function() {
+                saveScrollPosition();
+            });
+        });
+
+        // Restore scroll position when page loads
+        window.addEventListener('load', function() {
+            restoreScrollPosition();
+        });
+
+        // Also restore on DOMContentLoaded for faster response
+        document.addEventListener('DOMContentLoaded', function() {
+            restoreScrollPosition();
+            highlightLastVisitedMethod();
+        });
+
+        // Highlight the last visited method
+        function highlightLastVisitedMethod() {
+            const lastVisited = sessionStorage.getItem('lastVisitedMethod');
+            if (lastVisited) {
+                const methodCards = document.querySelectorAll('.method-card');
+                methodCards.forEach(card => {
+                    const onclick = card.getAttribute('onclick');
+                    if (onclick && onclick.includes(lastVisited)) {
+                        card.style.border = '2px solid rgba(102, 126, 234, 0.3)';
+                        card.style.background = 'linear-gradient(135deg, #f8faff 0%, #f0f4f8 100%)';
+                        
+                        // Remove highlight after 3 seconds
+                        setTimeout(() => {
+                            card.style.border = '1px solid rgba(102, 126, 234, 0.08)';
+                            card.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+                        }, 3000);
+                    }
+                });
+            }
+        }
+
+        // Clear scroll position when navigating away from methods (to other main sections)
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            if (!tab.href.includes('methods.html')) {
+                tab.addEventListener('click', function() {
+                    sessionStorage.removeItem('methodsPageScrollPosition');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
