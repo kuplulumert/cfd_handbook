@@ -1,228 +1,617 @@
-                    <!-- Historical Context and Development -->
-                    <div class="guide-section" style="background: #f0f4f8; border-left: 4px solid #8b5cf6;">
-                        <h3>Historical Context and Development</h3>
-                        <p class="guide-text">The k-ε turbulence model represents the first complete two-equation turbulence closure, developed by Launder and Spalding in 1974, building upon the pioneering work of Kolmogorov (1942) and Prandtl's mixing length theory.</p>
-                        
-                        <h4>Timeline and Evolution</h4>
-                        <p class="guide-text">The development of the k-ε model marked a watershed moment in computational fluid dynamics. In 1972, Launder and Spalding began systematic development of a transport equation for the dissipation rate ε, complementing the well-established turbulent kinetic energy equation. The breakthrough came in 1974 with the publication of their seminal paper introducing the standard k-ε model.</p>
-                        
-                        <p class="guide-text">Subsequent decades saw numerous refinements including the RNG k-ε variant (Yakhot and Orszag, 1986) incorporating renormalization group theory, the realizable k-ε model (Shih et al., 1995) ensuring mathematical realizability, and various low-Reynolds number variants for near-wall treatment. The model's widespread adoption was facilitated by its implementation in early commercial CFD codes during the 1980s.</p>
-                    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>k-ε Turbulence Model - CFD Handbook</title>
+    <meta name="description" content="Comprehensive guide to the k-epsilon turbulence model in CFD.">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="version" content="3.5">
+    <meta name="last-modified" content="2025-12-19-updated">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-                    <!-- Mathematical Foundation -->
-                    <div class="guide-section guide-overview">
-                        <h3>Mathematical Foundation and Complete Derivation</h3>
-                        <p class="guide-text">The k-ε model employs the Boussinesq eddy viscosity hypothesis, relating Reynolds stresses to mean strain rate through a turbulent viscosity. This approach provides closure for the Reynolds-averaged Navier-Stokes equations through two additional transport equations.</p>
-                        
-                        <h4>Turbulent Kinetic Energy Transport Equation:</h4>
-                        <div class="equation-block">
-                            $$\frac{\partial(\rho k)}{\partial t} + \frac{\partial(\rho k u_i)}{\partial x_i} = \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_k}\right) \frac{\partial k}{\partial x_j}\right] + P_k - \rho \varepsilon$$
-                        </div>
-                        
-                        <h4>Dissipation Rate Transport Equation:</h4>
-                        <div class="equation-block">
-                            $$\frac{\partial(\rho \varepsilon)}{\partial t} + \frac{\partial(\rho \varepsilon u_i)}{\partial x_i} = \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_\varepsilon}\right) \frac{\partial \varepsilon}{\partial x_j}\right] + C_{1\varepsilon}\frac{\varepsilon}{k}P_k - C_{2\varepsilon}\rho\frac{\varepsilon^2}{k}$$
-                        </div>
-                        
-                        <h4>Turbulent Viscosity Definition:</h4>
-                        <div class="equation-block">
-                            $$\mu_t = \rho C_\mu \frac{k^2}{\varepsilon}$$
-                        </div>
-                        
-                        <h4>Production Term:</h4>
-                        <div class="equation-block">
-                            $$P_k = \mu_t \left(\frac{\partial u_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i}\right) \frac{\partial u_i}{\partial x_j}$$
-                        </div>
-                        
-                        <div class="term-definitions">
-                            <h4>Variable Definitions:</h4>
-                            <div class="term-item"><strong>k:</strong> Turbulent kinetic energy (m²/s²)</div>
-                            <div class="term-item"><strong>ε:</strong> Turbulent dissipation rate (m²/s³)</div>
-                            <div class="term-item"><strong>μₜ:</strong> Turbulent viscosity (kg/(m·s))</div>
-                            <div class="term-item"><strong>Pₖ:</strong> Production of turbulent kinetic energy (kg/(m·s³))</div>
-                            <div class="term-item"><strong>ρ:</strong> Fluid density (kg/m³)</div>
-                            <div class="term-item"><strong>uᵢ:</strong> Reynolds-averaged velocity components (m/s)</div>
-                        </div>
-                        
-                        <div class="constants-table">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Constant</th>
-                                        <th>Value</th>
-                                        <th>Physical Significance</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Cμ</td>
-                                        <td>0.09</td>
-                                        <td>Turbulent viscosity coefficient</td>
-                                    </tr>
-                                    <tr>
-                                        <td>C₁ε</td>
-                                        <td>1.44</td>
-                                        <td>Dissipation production coefficient</td>
-                                    </tr>
-                                    <tr>
-                                        <td>C₂ε</td>
-                                        <td>1.92</td>
-                                        <td>Dissipation destruction coefficient</td>
-                                    </tr>
-                                    <tr>
-                                        <td>σₖ</td>
-                                        <td>1.0</td>
-                                        <td>Turbulent Prandtl number for k</td>
-                                    </tr>
-                                    <tr>
-                                        <td>σε</td>
-                                        <td>1.3</td>
-                                        <td>Turbulent Prandtl number for ε</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background-color: #f7fafc;
+            min-height: 100vh;
+            opacity: 0;
+            animation: fadeInPage 1.2s ease-out forwards;
+            overflow-x: hidden;
+        }
 
-                    <!-- Physical Interpretation -->
-                    <div class="guide-section">
-                        <h3>Physical Interpretation and Turbulence Physics</h3>
-                        <p class="guide-text">The k-ε model embodies fundamental principles of turbulent flow physics through its representation of the energy cascade process, from large-scale turbulent motions to molecular dissipation at the Kolmogorov scale.</p>
-                        
-                        <h4>Energy Cascade Representation</h4>
-                        <p class="guide-text">The turbulent kinetic energy equation captures the balance between production (from mean flow deformation), convection, diffusion, and dissipation. The production term Pₖ represents the extraction of energy from the mean flow through Reynolds stresses acting on mean strain rates, embodying the fundamental mechanism of turbulent energy generation.</p>
-                        
-                        <h4>Dissipation Rate Physics</h4>
-                        <p class="guide-text">The dissipation rate ε represents the rate at which turbulent kinetic energy is converted to internal energy through viscous action at the smallest scales. The ε-equation is largely phenomenological, with the C₁ε term representing production of dissipation proportional to the production of turbulent kinetic energy, while C₂ε represents the self-destruction of dissipation.</p>
-                        
-                        <h4>Turbulent Viscosity Concept</h4>
-                        <p class="guide-text">The Boussinesq hypothesis underlying the k-ε model assumes that Reynolds stresses are proportional to mean strain rates through a turbulent viscosity μₜ. This scalar viscosity approximation, while computationally efficient, inherently assumes isotropic turbulence and fails in flows with strong streamline curvature or system rotation.</p>
-                        
-                        <h4>Length and Time Scale Relationships</h4>
-                        <p class="guide-text">The k-ε model implicitly defines turbulent length and time scales through the relationships:</p>
-                        
-                        <div class="equation-block">
-                            $$l_t = C_\mu^{3/4} \frac{k^{3/2}}{\varepsilon}, \quad \tau_t = \frac{k}{\varepsilon}$$
-                        </div>
-                        
-                        <p class="guide-text">These scales characterize the size and lifetime of energy-containing turbulent eddies, providing the foundation for the turbulent viscosity formulation.</p>
-                    </div>
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-                    <!-- Model Assumptions and Limitations -->
-                    <div class="guide-section">
-                        <h3>Model Assumptions and Theoretical Limitations</h3>
-                        <p class="guide-text">The k-ε model incorporates several fundamental assumptions that define its range of applicability and inherent limitations in representing complex turbulent flows.</p>
-                        
-                        <h4>Boussinesq Eddy Viscosity Assumption</h4>
-                        <p class="guide-text">The central assumption of isotropic turbulent viscosity fails in flows with:</p>
-                        
-                        <ul class="guide-list">
-                            <li class="guide-item">
-                                <span class="guide-text">Strong streamline curvature and system rotation</span>
-                            </li>
-                            <li class="guide-item">
-                                <span class="guide-text">Significant buoyancy effects and stratification</span>
-                            </li>
-                            <li class="guide-item">
-                                <span class="guide-text">Three-dimensional separation and corner flows</span>
-                            </li>
-                            <li class="guide-item">
-                                <span class="guide-text">Flows with significant Reynolds stress anisotropy</span>
-                            </li>
-                        </ul>
-                        
-                        <h4>High Reynolds Number Assumption</h4>
-                        <p class="guide-text">The standard k-ε formulation assumes fully developed turbulence, making it inappropriate for:</p>
-                        
-                        <ul class="guide-list">
-                            <li class="guide-item">
-                                <span class="guide-text">Transitional flows and laminar-turbulent transition</span>
-                            </li>
-                            <li class="guide-item">
-                                <span class="guide-text">Near-wall regions requiring viscous sublayer resolution</span>
-                            </li>
-                            <li class="guide-item">
-                                <span class="guide-text">Low Reynolds number applications</span>
-                            </li>
-                        </ul>
-                        
-                        <h4>Gradient Diffusion Hypothesis</h4>
-                        <p class="guide-text">The assumption that turbulent transport is proportional to mean gradients becomes questionable in complex flows with strong pressure gradients, recirculation, or separation.</p>
-                    </div>
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 2rem;
+            max-width: 1400px;
+        }
 
-                    <!-- Validation and Performance Database -->
-                    <div class="guide-section">
-                        <h3>Model Validation and Performance Database</h3>
-                        <p class="guide-text">The k-ε model has been extensively validated against experimental data across a wide range of flow configurations, establishing its strengths and limitations for engineering applications.</p>
-                        
-                        <h4>Successful Applications</h4>
-                        <ul class="guide-list">
-                            <li class="guide-item">
-                                <span class="guide-text">Fully developed channel and pipe flows with excellent agreement</span>
-                            </li>
-                            <li class="guide-item">
-                                <span class="guide-text">Free jets and mixing layers with reasonable accuracy</span>
-                            </li>
-                            <li class="guide-item">
-                                <span class="guide-text">Simple heat exchanger geometries and internal flows</span>
-                            </li>
-                            <li class="guide-item">
-                                <span class="guide-text">Large-scale atmospheric and environmental flows</span>
-                            </li>
-                        </ul>
-                        
-                        <h4>Known Deficiencies</h4>
-                        <ul class="guide-list">
-                            <li class="guide-item">
-                                <span class="guide-text">Over-prediction of spreading rates in round jets</span>
-                            </li>
-                            <li class="guide-item">
-                                <span class="guide-text">Under-prediction of separation in adverse pressure gradients</span>
-                            </li>
-                            <li class="guide-item">
-                                <span class="guide-text">Poor performance in swirling and rotating flows</span>
-                            </li>
-                            <li class="guide-item">
-                                <span class="guide-text">Inadequate near-wall heat transfer prediction</span>
-                            </li>
-                        </ul>
-                        
-                        <h4>Benchmark Test Cases</h4>
-                        <p class="guide-text">Standard validation cases include the backward-facing step, flow over a flat plate, turbulent pipe flow, and the plane mixing layer. These cases provide quantitative measures of model performance across different flow physics.</p>
-                    </div>
+        /* Premium Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.08);
+            transition: all 0.3s ease;
+        }
 
-                    <!-- Modern Variants and Extensions -->
-                    <div class="guide-section">
-                        <h3>Modern Variants and Theoretical Extensions</h3>
-                        <p class="guide-text">Recognizing the limitations of the standard k-ε model, numerous variants have been developed to address specific deficiencies while maintaining computational efficiency.</p>
-                        
-                        <h4>RNG k-ε Model</h4>
-                        <p class="guide-text">The Renormalization Group k-ε model incorporates systematic removal of small-scale motions from the Navier-Stokes equations, resulting in modified model constants and an additional term in the ε-equation to improve performance in rapidly strained flows.</p>
-                        
-                        <h4>Realizable k-ε Model</h4>
-                        <p class="guide-text">This variant ensures mathematical realizability constraints are satisfied, preventing non-physical negative normal stresses. The realizable model employs a variable Cμ coefficient and modified ε-equation, improving performance in flows with strong streamline curvature.</p>
-                        
-                        <h4>Enhanced Wall Treatment</h4>
-                        <p class="guide-text">Various near-wall modifications enable integration to the wall surface, combining the robustness of wall functions with the accuracy of low-Reynolds number formulations. These hybrid approaches automatically adjust based on local mesh resolution.</p>
-                        
-                        <h4>Nonlinear Eddy Viscosity Models</h4>
-                        <p class="guide-text">Extensions incorporating nonlinear stress-strain relationships partially address Reynolds stress anisotropy while retaining the two-equation framework. These models represent a compromise between computational efficiency and physical accuracy.</p>
-                    </div>
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
 
-                    <!-- Contemporary Research -->
-                    <div class="guide-section">
-                        <h3>Contemporary Research and Future Directions</h3>
-                        <p class="guide-text">While newer turbulence models have superseded k-ε for many applications, ongoing research continues to refine and extend its applicability, particularly in specialized domains and large-scale simulations.</p>
-                        
-                        <h4>Machine Learning Integration</h4>
-                        <p class="guide-text">Recent developments incorporate machine learning techniques to improve model constants and functional forms based on high-fidelity simulation data. These data-driven approaches show promise for enhancing k-ε performance in specific application domains.</p>
-                        
-                        <h4>Computational Efficiency Optimization</h4>
-                        <p class="guide-text">Modern implementations focus on GPU acceleration and massively parallel architectures, leveraging the k-ε model's computational simplicity for exascale computing applications in climate modeling and urban flow simulation.</p>
-                        
-                        <h4>Uncertainty Quantification</h4>
-                        <p class="guide-text">Contemporary research addresses epistemic uncertainty in turbulence modeling through stochastic formulations and Bayesian approaches, providing probabilistic confidence bounds for k-ε predictions.</p>
-                        
-                        <h4>Multiphase and Reacting Flow Extensions</h4>
-                        <p class="guide-text">Specialized variants continue development for complex multiphase flows, combustion applications, and heat transfer scenarios where the k-ε framework provides a robust foundation for additional physics modeling.</p>
-                    </div>
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            color: #4a5568;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-tab:hover::before,
+        .nav-tab.active::before {
+            opacity: 1;
+        }
+
+        .nav-tab:hover,
+        .nav-tab.active {
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 4rem 0;
+        }
+
+        .guide-section {
+            background: white;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .guide-section:hover {
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .guide-section h3 {
+            color: #2d3748;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .guide-section h4 {
+            color: #4a5568;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem 0;
+        }
+
+        .guide-text {
+            color: #4a5568;
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .equation-block {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-size: 1.1rem;
+            overflow-x: auto;
+        }
+
+        .term-definitions {
+            background: #f0f4f8;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .term-item {
+            margin-bottom: 0.8rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .term-item:last-child {
+            border-bottom: none;
+        }
+
+        .constants-table {
+            margin: 2rem 0;
+            overflow-x: auto;
+        }
+
+        .constants-table table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .constants-table th,
+        .constants-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .constants-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .guide-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .guide-item {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .guide-item::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        /* Back button */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.25);
+        }
+
+        /* Page title */
+        .page-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .page-title p {
+            font-size: 1.2rem;
+            color: #4a5568;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .header-content {
+                padding: 0 1rem;
+            }
+            
+            .nav-tabs {
+                gap: 1rem;
+            }
+            
+            .nav-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+            
+            .guide-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .page-title h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    
+    <!-- MathJax for equation rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="turbulence-models.html" class="logo">CFD Handbook</a>
+            <nav class="nav-tabs">
+                <a href="home.html" class="nav-tab">Home</a>
+                <a href="time-dependency.html" class="nav-tab">Time Dependency</a>
+                <a href="turbulence-models.html" class="nav-tab">Turbulence Models</a>
+                <a href="methods.html" class="nav-tab">Methods</a>
+                <a href="product-guide.html" class="nav-tab">Product Guide</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <a href="turbulence-models.html" class="back-button">
+                ← Back to Turbulence Models
+            </a>
+            
+            <div class="page-title">
+                <h1>k-ε Turbulence Model</h1>
+                <p>A comprehensive guide to the k-epsilon turbulence model - the foundation of industrial CFD simulation</p>
+            </div>
+
+            <!-- Historical Context and Development -->
+            <div class="guide-section" style="background: #f0f4f8; border-left: 4px solid #8b5cf6;">
+                <h3>Historical Context and Development</h3>
+                <p class="guide-text">The k-ε turbulence model represents the first complete two-equation turbulence closure, developed by Launder and Spalding in 1974, building upon the pioneering work of Kolmogorov (1942) and Prandtl's mixing length theory.</p>
+                
+                <h4>Timeline and Evolution</h4>
+                <p class="guide-text">The development of the k-ε model marked a watershed moment in computational fluid dynamics. In 1972, Launder and Spalding began systematic development of a transport equation for the dissipation rate ε, complementing the well-established turbulent kinetic energy equation. The breakthrough came in 1974 with the publication of their seminal paper introducing the standard k-ε model.</p>
+                
+                <p class="guide-text">Subsequent decades saw numerous refinements including the RNG k-ε variant (Yakhot and Orszag, 1986) incorporating renormalization group theory, the realizable k-ε model (Shih et al., 1995) ensuring mathematical realizability, and various low-Reynolds number variants for near-wall treatment. The model's widespread adoption was facilitated by its implementation in early commercial CFD codes during the 1980s.</p>
+            </div>
+
+            <!-- Mathematical Foundation -->
+            <div class="guide-section guide-overview">
+                <h3>Mathematical Foundation and Complete Derivation</h3>
+                <p class="guide-text">The k-ε model employs the Boussinesq eddy viscosity hypothesis, relating Reynolds stresses to mean strain rate through a turbulent viscosity. This approach provides closure for the Reynolds-averaged Navier-Stokes equations through two additional transport equations.</p>
+                
+                <h4>Turbulent Kinetic Energy Transport Equation:</h4>
+                <div class="equation-block">
+                    $$\frac{\partial(\rho k)}{\partial t} + \frac{\partial(\rho k u_i)}{\partial x_i} = \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_k}\right) \frac{\partial k}{\partial x_j}\right] + P_k - \rho \varepsilon$$
+                </div>
+                
+                <h4>Dissipation Rate Transport Equation:</h4>
+                <div class="equation-block">
+                    $$\frac{\partial(\rho \varepsilon)}{\partial t} + \frac{\partial(\rho \varepsilon u_i)}{\partial x_i} = \frac{\partial}{\partial x_j}\left[\left(\mu + \frac{\mu_t}{\sigma_\varepsilon}\right) \frac{\partial \varepsilon}{\partial x_j}\right] + C_{1\varepsilon}\frac{\varepsilon}{k}P_k - C_{2\varepsilon}\rho\frac{\varepsilon^2}{k}$$
+                </div>
+                
+                <h4>Turbulent Viscosity Definition:</h4>
+                <div class="equation-block">
+                    $$\mu_t = \rho C_\mu \frac{k^2}{\varepsilon}$$
+                </div>
+                
+                <h4>Production Term:</h4>
+                <div class="equation-block">
+                    $$P_k = \mu_t \left(\frac{\partial u_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i}\right) \frac{\partial u_i}{\partial x_j}$$
+                </div>
+                
+                <div class="term-definitions">
+                    <h4>Variable Definitions:</h4>
+                    <div class="term-item"><strong>k:</strong> Turbulent kinetic energy (m²/s²)</div>
+                    <div class="term-item"><strong>ε:</strong> Turbulent dissipation rate (m²/s³)</div>
+                    <div class="term-item"><strong>μₜ:</strong> Turbulent viscosity (kg/(m·s))</div>
+                    <div class="term-item"><strong>Pₖ:</strong> Production of turbulent kinetic energy (kg/(m·s³))</div>
+                    <div class="term-item"><strong>ρ:</strong> Fluid density (kg/m³)</div>
+                    <div class="term-item"><strong>uᵢ:</strong> Reynolds-averaged velocity components (m/s)</div>
+                </div>
+                
+                <div class="constants-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Constant</th>
+                                <th>Value</th>
+                                <th>Physical Significance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Cμ</td>
+                                <td>0.09</td>
+                                <td>Turbulent viscosity coefficient</td>
+                            </tr>
+                            <tr>
+                                <td>C₁ε</td>
+                                <td>1.44</td>
+                                <td>Dissipation production coefficient</td>
+                            </tr>
+                            <tr>
+                                <td>C₂ε</td>
+                                <td>1.92</td>
+                                <td>Dissipation destruction coefficient</td>
+                            </tr>
+                            <tr>
+                                <td>σₖ</td>
+                                <td>1.0</td>
+                                <td>Turbulent Prandtl number for k</td>
+                            </tr>
+                            <tr>
+                                <td>σε</td>
+                                <td>1.3</td>
+                                <td>Turbulent Prandtl number for ε</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Physical Interpretation -->
+            <div class="guide-section">
+                <h3>Physical Interpretation and Turbulence Physics</h3>
+                <p class="guide-text">The k-ε model embodies fundamental principles of turbulent flow physics through its representation of the energy cascade process, from large-scale turbulent motions to molecular dissipation at the Kolmogorov scale.</p>
+                
+                <h4>Energy Cascade Representation</h4>
+                <p class="guide-text">The turbulent kinetic energy equation captures the balance between production (from mean flow deformation), convection, diffusion, and dissipation. The production term Pₖ represents the extraction of energy from the mean flow through Reynolds stresses acting on mean strain rates, embodying the fundamental mechanism of turbulent energy generation.</p>
+                
+                <h4>Dissipation Rate Physics</h4>
+                <p class="guide-text">The dissipation rate ε represents the rate at which turbulent kinetic energy is converted to internal energy through viscous action at the smallest scales. The ε-equation is largely phenomenological, with the C₁ε term representing production of dissipation proportional to the production of turbulent kinetic energy, while C₂ε represents the self-destruction of dissipation.</p>
+                
+                <h4>Turbulent Viscosity Concept</h4>
+                <p class="guide-text">The Boussinesq hypothesis underlying the k-ε model assumes that Reynolds stresses are proportional to mean strain rates through a turbulent viscosity μₜ. This scalar viscosity approximation, while computationally efficient, inherently assumes isotropic turbulence and fails in flows with strong streamline curvature or system rotation.</p>
+                
+                <h4>Length and Time Scale Relationships</h4>
+                <p class="guide-text">The k-ε model implicitly defines turbulent length and time scales through the relationships:</p>
+                
+                <div class="equation-block">
+                    $$l_t = C_\mu^{3/4} \frac{k^{3/2}}{\varepsilon}, \quad \tau_t = \frac{k}{\varepsilon}$$
+                </div>
+                
+                <p class="guide-text">These scales characterize the size and lifetime of energy-containing turbulent eddies, providing the foundation for the turbulent viscosity formulation.</p>
+            </div>
+
+            <!-- Model Assumptions and Limitations -->
+            <div class="guide-section">
+                <h3>Model Assumptions and Theoretical Limitations</h3>
+                <p class="guide-text">The k-ε model incorporates several fundamental assumptions that define its range of applicability and inherent limitations in representing complex turbulent flows.</p>
+                
+                <h4>Boussinesq Eddy Viscosity Assumption</h4>
+                <p class="guide-text">The central assumption of isotropic turbulent viscosity fails in flows with:</p>
+                
+                <ul class="guide-list">
+                    <li class="guide-item">
+                        <span class="guide-text">Strong streamline curvature and system rotation</span>
+                    </li>
+                    <li class="guide-item">
+                        <span class="guide-text">Significant buoyancy effects and stratification</span>
+                    </li>
+                    <li class="guide-item">
+                        <span class="guide-text">Three-dimensional separation and corner flows</span>
+                    </li>
+                    <li class="guide-item">
+                        <span class="guide-text">Flows with significant Reynolds stress anisotropy</span>
+                    </li>
+                </ul>
+                
+                <h4>High Reynolds Number Assumption</h4>
+                <p class="guide-text">The standard k-ε formulation assumes fully developed turbulence, making it inappropriate for:</p>
+                
+                <ul class="guide-list">
+                    <li class="guide-item">
+                        <span class="guide-text">Transitional flows and laminar-turbulent transition</span>
+                    </li>
+                    <li class="guide-item">
+                        <span class="guide-text">Near-wall regions requiring viscous sublayer resolution</span>
+                    </li>
+                    <li class="guide-item">
+                        <span class="guide-text">Low Reynolds number applications</span>
+                    </li>
+                </ul>
+                
+                <h4>Gradient Diffusion Hypothesis</h4>
+                <p class="guide-text">The assumption that turbulent transport is proportional to mean gradients becomes questionable in complex flows with strong pressure gradients, recirculation, or separation.</p>
+            </div>
+
+            <!-- Validation and Performance Database -->
+            <div class="guide-section">
+                <h3>Model Validation and Performance Database</h3>
+                <p class="guide-text">The k-ε model has been extensively validated against experimental data across a wide range of flow configurations, establishing its strengths and limitations for engineering applications.</p>
+                
+                <h4>Successful Applications</h4>
+                <ul class="guide-list">
+                    <li class="guide-item">
+                        <span class="guide-text">Fully developed channel and pipe flows with excellent agreement</span>
+                    </li>
+                    <li class="guide-item">
+                        <span class="guide-text">Free jets and mixing layers with reasonable accuracy</span>
+                    </li>
+                    <li class="guide-item">
+                        <span class="guide-text">Simple heat exchanger geometries and internal flows</span>
+                    </li>
+                    <li class="guide-item">
+                        <span class="guide-text">Large-scale atmospheric and environmental flows</span>
+                    </li>
+                </ul>
+                
+                <h4>Known Deficiencies</h4>
+                <ul class="guide-list">
+                    <li class="guide-item">
+                        <span class="guide-text">Over-prediction of spreading rates in round jets</span>
+                    </li>
+                    <li class="guide-item">
+                        <span class="guide-text">Under-prediction of separation in adverse pressure gradients</span>
+                    </li>
+                    <li class="guide-item">
+                        <span class="guide-text">Poor performance in swirling and rotating flows</span>
+                    </li>
+                    <li class="guide-item">
+                        <span class="guide-text">Inadequate near-wall heat transfer prediction</span>
+                    </li>
+                </ul>
+                
+                <h4>Benchmark Test Cases</h4>
+                <p class="guide-text">Standard validation cases include the backward-facing step, flow over a flat plate, turbulent pipe flow, and the plane mixing layer. These cases provide quantitative measures of model performance across different flow physics.</p>
+            </div>
+
+            <!-- Modern Variants and Extensions -->
+            <div class="guide-section">
+                <h3>Modern Variants and Theoretical Extensions</h3>
+                <p class="guide-text">Recognizing the limitations of the standard k-ε model, numerous variants have been developed to address specific deficiencies while maintaining computational efficiency.</p>
+                
+                <h4>RNG k-ε Model</h4>
+                <p class="guide-text">The Renormalization Group k-ε model incorporates systematic removal of small-scale motions from the Navier-Stokes equations, resulting in modified model constants and an additional term in the ε-equation to improve performance in rapidly strained flows.</p>
+                
+                <h4>Realizable k-ε Model</h4>
+                <p class="guide-text">This variant ensures mathematical realizability constraints are satisfied, preventing non-physical negative normal stresses. The realizable model employs a variable Cμ coefficient and modified ε-equation, improving performance in flows with strong streamline curvature.</p>
+                
+                <h4>Enhanced Wall Treatment</h4>
+                <p class="guide-text">Various near-wall modifications enable integration to the wall surface, combining the robustness of wall functions with the accuracy of low-Reynolds number formulations. These hybrid approaches automatically adjust based on local mesh resolution.</p>
+                
+                <h4>Nonlinear Eddy Viscosity Models</h4>
+                <p class="guide-text">Extensions incorporating nonlinear stress-strain relationships partially address Reynolds stress anisotropy while retaining the two-equation framework. These models represent a compromise between computational efficiency and physical accuracy.</p>
+            </div>
+
+            <!-- Contemporary Research -->
+            <div class="guide-section">
+                <h3>Contemporary Research and Future Directions</h3>
+                <p class="guide-text">While newer turbulence models have superseded k-ε for many applications, ongoing research continues to refine and extend its applicability, particularly in specialized domains and large-scale simulations.</p>
+                
+                <h4>Machine Learning Integration</h4>
+                <p class="guide-text">Recent developments incorporate machine learning techniques to improve model constants and functional forms based on high-fidelity simulation data. These data-driven approaches show promise for enhancing k-ε performance in specific application domains.</p>
+                
+                <h4>Computational Efficiency Optimization</h4>
+                <p class="guide-text">Modern implementations focus on GPU acceleration and massively parallel architectures, leveraging the k-ε model's computational simplicity for exascale computing applications in climate modeling and urban flow simulation.</p>
+                
+                <h4>Uncertainty Quantification</h4>
+                <p class="guide-text">Contemporary research addresses epistemic uncertainty in turbulence modeling through stochastic formulations and Bayesian approaches, providing probabilistic confidence bounds for k-ε predictions.</p>
+                
+                <h4>Multiphase and Reacting Flow Extensions</h4>
+                <p class="guide-text">Specialized variants continue development for complex multiphase flows, combustion applications, and heat transfer scenarios where the k-ε framework provides a robust foundation for additional physics modeling.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Smooth page transitions
+        function smoothTransition(url) {
+            document.body.style.opacity = '0';
+            document.body.style.transform = 'translateY(-30px)';
+            setTimeout(() => {
+                window.location.href = url;
+            }, 400);
+        }
+
+        // Add smooth transitions to navigation
+        document.querySelectorAll('.nav-tab, .back-button').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                smoothTransition(this.href);
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        console.log('CFD Handbook - k-ε Model guide loaded');
+    </script>
+</body>
+</html>
